@@ -8,10 +8,12 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class MySendMessage {
     @Autowired
     CheckDateFormat checkDateFormat;
     @Autowired
-    TaskRepository taskRepository;
+    TasksDetails tasksDetails;
 
     public static HashMap<Long, Task> nonCreatedTask = new HashMap<>();
     public static HashMap<Long, Integer> statusCreatingTask = new HashMap<>();
@@ -40,7 +42,7 @@ public class MySendMessage {
             return setComment(message.getChatId(), messageText);
         }
 
-        return null;
+        return SendMessage.builder().text("Я вас не понял(, вернуться в начало - /start").build();
     }
 
     public SendMessage startMessage(Long chatID) {
@@ -68,7 +70,28 @@ public class MySendMessage {
     }
 
     public SendMessage setDay(Long chatId, String messageText) {
-        return null;
+        String textAnswer = "";
+        String format = "dd.MM.yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        Date date = new Date();
+        try {
+            date = sdf.parse(messageText);
+        } catch (ParseException e) {
+            textAnswer = "Ошибка при обработке времени :( Попробуйте ввести еще раз, в формате дд.мм.гггг," +
+                    " Например: 17 сентября 2024 года будет выглядеть так: 17.09.2024";
+            return SendMessage.builder()
+                    .text(textAnswer)
+                    .chatId(chatId)
+                    .build();
+        }
+        Task task = new Task(chatId, date);
+        nonCreatedTask.put(chatId, task);
+        statusCreatingTask.put(chatId, 2);
+        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм или введите /-, чтобы оставить только дату";
+        return SendMessage.builder()
+                .chatId(chatId)
+                .text(textMessage)
+                .build();
     }
 
     public SendMessage setTime(Long chatId, String messageText) {
@@ -99,7 +122,7 @@ public class MySendMessage {
     public SendMessage setComment(Long chatId, String messageText) {
         Task task = nonCreatedTask.getOrDefault(chatId, new Task());
         task.setTaskMessage(messageText);
-        taskRepository.save(task);
+        tasksDetails.saveTask(task);
         nonCreatedTask.remove(chatId);
         statusCreatingTask.remove(chatId);
         return SendMessage.builder()
