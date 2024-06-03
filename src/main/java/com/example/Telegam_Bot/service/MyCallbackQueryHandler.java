@@ -1,6 +1,7 @@
 package com.example.Telegam_Bot.service;
 
 import com.example.Telegam_Bot.comands.BtnCommand;
+import com.example.Telegam_Bot.entity.Task;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -17,7 +18,7 @@ public class MyCallbackQueryHandler {
             return createNewTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
         if (data.equals(BtnCommand.CREATE_TASK_TODAY.getCommand())){
-
+            return creatTaskToday(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
         return null;
     }
@@ -45,7 +46,12 @@ public class MyCallbackQueryHandler {
                 .replyMarkup(btnsList)
                 .build();
     }
-    public EditMessageText creatTaskToday(){
-        return null;
+    public EditMessageText creatTaskToday(Integer messageId, Long chatId){
+        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм";
+        return EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(textMessage)
+                .build();
     }
 }
