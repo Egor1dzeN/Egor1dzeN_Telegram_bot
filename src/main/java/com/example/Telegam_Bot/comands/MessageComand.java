@@ -1,15 +1,15 @@
 package com.example.Telegam_Bot.comands;
 
 
+import lombok.Getter;
+
+@Getter
 public enum MessageComand {
     START("/start"),
     HELP("/help");
-    final String string;
+    final String command;
 
-    MessageComand(String value) {
-        this.string = value;
-    }
-    public String getString(){
-        return this.string;
+    MessageComand(String command) {
+        this.command = command;
     }
 }
