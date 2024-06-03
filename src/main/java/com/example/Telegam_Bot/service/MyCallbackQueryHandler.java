@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -17,6 +18,7 @@ public class MyCallbackQueryHandler {
         if (data.equals(BtnCommand.NEW_TASK.getCommand())) {
             return createNewTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
+        System.out.println(data);
         if (data.equals(BtnCommand.CREATE_TASK_TODAY.getCommand())){
             return creatTaskToday(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
@@ -47,7 +49,10 @@ public class MyCallbackQueryHandler {
                 .build();
     }
     public EditMessageText creatTaskToday(Integer messageId, Long chatId){
-        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм";
+        Task task = new Task(chatId, new Date());
+        MySendMessage.nonCreatedTask.put(chatId, task);
+        MySendMessage.statusCreatingTask.put(chatId, 2);
+        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм или введите /-, чтобы оставить только дату";
         return EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)

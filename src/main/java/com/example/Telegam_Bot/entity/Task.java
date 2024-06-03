@@ -1,32 +1,33 @@
 package com.example.Telegam_Bot.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
 
-import java.sql.Time;
 import java.util.Date;
 
 @Entity(name = "Task")
 @Data
-@Builder
+//@Builder
 public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    @NonNull
     Long userId;
     @Temporal(TemporalType.DATE)
     Date day;
     @Temporal(TemporalType.TIME)
     Date time;
-    @NonNull
-    String task;
-
+    String taskMessage;
 
     public Task() {
 
+    }
+    public Task(Long userId){
+        this.userId = userId;
+    }
+    public Task(Long userId, Date day){
+        this.userId = userId;
+        this.day = day;
     }
 }
