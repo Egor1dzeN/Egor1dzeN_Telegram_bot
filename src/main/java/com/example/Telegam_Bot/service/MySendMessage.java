@@ -80,7 +80,7 @@ public class MySendMessage {
             time = sdf.parse(messageText);
 
         } catch (Exception e) {
-            textAnswer = "Ошибка при обработке времени :( Нажмите /start чтобы вернуться в начало";
+            textAnswer = "Ошибка при обработке времени :( Попробуйте ввести еще раз, в формате чч:мм";
             return SendMessage.builder()
                     .text(textAnswer)
                     .chatId(chatId)
@@ -101,6 +101,7 @@ public class MySendMessage {
         task.setTaskMessage(messageText);
         taskRepository.save(task);
         nonCreatedTask.remove(chatId);
+        statusCreatingTask.remove(chatId);
         return SendMessage.builder()
                 .text("Задача была успешно создана!)")
                 .chatId(chatId)

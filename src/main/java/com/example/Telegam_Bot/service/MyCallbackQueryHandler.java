@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -20,7 +21,10 @@ public class MyCallbackQueryHandler {
         }
         System.out.println(data);
         if (data.equals(BtnCommand.CREATE_TASK_TODAY.getCommand())){
-            return creatTaskToday(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
+            return createTaskToday(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
+        }
+        if (data.equals(BtnCommand.CREATE_TASK_TOMORROW.getCommand())){
+            return createTaskTomorrow(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
         return null;
     }
@@ -48,8 +52,23 @@ public class MyCallbackQueryHandler {
                 .replyMarkup(btnsList)
                 .build();
     }
-    public EditMessageText creatTaskToday(Integer messageId, Long chatId){
+    public EditMessageText createTaskToday(Integer messageId, Long chatId){
         Task task = new Task(chatId, new Date());
+        MySendMessage.nonCreatedTask.put(chatId, task);
+        MySendMessage.statusCreatingTask.put(chatId, 2);
+        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм или введите /-, чтобы оставить только дату";
+        return EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(textMessage)
+                .build();
+    }
+    public EditMessageText createTaskTomorrow(Integer messageId, Long chatId){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        Date date_tomorrow = calendar.getTime();
+        System.out.println(date_tomorrow);
+        Task task = new Task(chatId, date_tomorrow);
         MySendMessage.nonCreatedTask.put(chatId, task);
         MySendMessage.statusCreatingTask.put(chatId, 2);
         String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм или введите /-, чтобы оставить только дату";

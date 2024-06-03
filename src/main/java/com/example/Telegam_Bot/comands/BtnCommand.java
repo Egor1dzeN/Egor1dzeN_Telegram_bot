@@ -7,7 +7,7 @@ public enum BtnCommand {
     NEW_TASK("create_new_task"),
     MY_TASKS("my_tasks"),
     CREATE_TASK_TODAY("create_task_today"),
-    CREATE_TASK_TOMORROW("create_task_today"),
+    CREATE_TASK_TOMORROW("create_task_tomorrow"),
     CREATE_TASK_OTHER_TIME("create_task_other_time");
     final String command;
 
