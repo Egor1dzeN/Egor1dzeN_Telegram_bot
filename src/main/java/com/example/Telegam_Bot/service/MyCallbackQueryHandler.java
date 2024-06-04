@@ -42,7 +42,13 @@ public class MyCallbackQueryHandler {
             return changeTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
         if (data.equals(BtnCommand.CHANGE_DAY_TASK.getCommand())){
-
+            return changeDayTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
+        }
+        if (data.equals(BtnCommand.CHANGE_TIME_TASK.getCommand())){
+            return changeTimeTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
+        }
+        if (data.equals(BtnCommand.CHANGE_COMMENT_TASK.getCommand())){
+            return changeCommentTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
         return EditMessageText.builder()
                 .text("))")
@@ -135,6 +141,7 @@ public class MyCallbackQueryHandler {
                 .build();
     }
     public EditMessageText changeTask(Integer messageId, Long chatId) {
+        MySendMessage.statusChatUser.put(chatId, 4);
         EditMessageText message = showMyTasks(messageId, chatId);
         String textMessage = message.getText();
         textMessage += "Введите номер задачи, которую хотите изменить:";
@@ -142,7 +149,30 @@ public class MyCallbackQueryHandler {
         return message;
     }
     public EditMessageText changeDayTask(Integer messageId, Long chatId) {
-        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм \uD83E\uDDFE или введите /skip, чтобы оставить только дату";
+        System.out.println("Change Day!");
+        MySendMessage.statusChatUser.put(chatId, 5);
+        String textMessage = "Введите дату задачи в формате дд.мм.гггг," +
+                " Например: 1 января 2024 года будет выглядеть так: 01.01.2024";
+        return EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(textMessage)
+                .build();
+    }
+    public EditMessageText changeTimeTask(Integer messageId, Long chatId) {
+        System.out.println("Change Day!");
+        MySendMessage.statusChatUser.put(chatId, 6);
+        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм \uD83E\uDDFE, чтобы оставить только дату";
+        return EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(textMessage)
+                .build();
+    }
+    public EditMessageText changeCommentTask(Integer messageId, Long chatId) {
+//        System.out.println("Change Day!");
+        MySendMessage.statusChatUser.put(chatId, 7);
+        String textMessage = "Введите новый комментарий к задаче: ";
         return EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)

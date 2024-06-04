@@ -36,21 +36,28 @@ public class MySendMessage {
         String messageText = message.getText();
         if (messageText.equals(MessageComand.START.getCommand())) {
             return startMessage(message.getChatId());
-        }
-        else if (messageText.equals(MessageComand.SKIP.getCommand())){
+        } else if (messageText.equals(MessageComand.SKIP.getCommand())) {
             return setTime(message.getChatId(), "00:00");
-        }
-        else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 1) {
+        } else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 1) {
             return setDay(message.getChatId(), messageText);
         } else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 2) {
             return setTime(message.getChatId(), messageText);
         } else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 3) {
             return setComment(message.getChatId(), messageText);
-        } else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 4){
-
+        }else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 4) {
+            return setTaskForChange(message.getChatId(), messageText);
+        }
+        else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 5) {
+            return setDayTask(message.getChatId(), messageText);
+        }
+        else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 6) {
+            return setTimeTask(message.getChatId(), messageText);
+        }
+        else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 7) {
+            return setCommentTask(message.getChatId(), messageText);
         }
 
-        return SendMessage.builder().text("Я вас не понял(, вернуться в начало - /start").build();
+        return SendMessage.builder().text("Я вас не понял(, вернуться в начало - /start").chatId(message.getChatId()).build();
     }
 
     public SendMessage startMessage(Long chatID) {
@@ -90,7 +97,7 @@ public class MySendMessage {
         try {
             date = sdf.parse(messageText);
         } catch (ParseException e) {
-            textAnswer = "Ошибка при обработке времени :( Попробуйте ввести еще раз, в формате дд.мм.гггг," +
+            textAnswer = "Ошибка при обработке даты :( Попробуйте ввести еще раз, в формате дд.мм.гггг," +
                     " Например: 17 сентября 2024 года будет выглядеть так: 17.09.2024";
             return SendMessage.builder()
                     .text(textAnswer)
@@ -144,18 +151,19 @@ public class MySendMessage {
                 .chatId(chatId)
                 .build();
     }
+
     public SendMessage setTaskForChange(Long chatId, String messageText) {
         final String DIGIT_REGEX = "\\d";
         final Pattern DIGIT_PATTERN = Pattern.compile(DIGIT_REGEX);
         Matcher matcher = DIGIT_PATTERN.matcher(messageText);
-        if (!matcher.matches()){
+        if (!matcher.matches()) {
             return SendMessage.builder()
                     .text("Вы ввели не число :(, попробуйте еще раз или введите /start, чтобы вернуться в начало")
                     .chatId(chatId)
                     .build();
         }
         List<Task> listTask = tasksDetails.getAllTasksByUserId(chatId);
-        if (Integer.parseInt(messageText) > listTask.size() || Integer.parseInt(messageText) < 1){
+        if (Integer.parseInt(messageText) > listTask.size() || Integer.parseInt(messageText) < 1) {
             return SendMessage.builder()
                     .text("Вы ввели число не соответсвующее номеру какой-либо задачи" +
                             " :(, попробуйте еще раз или введите /start, чтобы вернуться в начало")
@@ -185,6 +193,63 @@ public class MySendMessage {
                 .text("Выберите, что вы хотите изменить в задаче:")
                 .replyMarkup(btnMarkup)
                 .parseMode("HTML")
+                .build();
+    }
+
+    public SendMessage setDayTask(Long chatId, String messageText) {
+        String textAnswer;
+        String format = "dd.MM.yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        Date date = new Date();
+        try {
+            date = sdf.parse(messageText);
+        } catch (ParseException e) {
+            textAnswer = "Ошибка при обработке даты :( Попробуйте ввести еще раз, в формате дд.мм.гггг," +
+                    " Например: 17 сентября 2024 года будет выглядеть так: 17.09.2024";
+            return SendMessage.builder()
+                    .text(textAnswer)
+                    .chatId(chatId)
+                    .build();
+        }
+        Task task = new Task(chatId, date);
+        statusChatUser.remove(chatId);
+        tasksDetails.changeDayTask(N_taskForChange.get(chatId), chatId, date);
+        String textMessage = "Задача была успешно изменена!) ✔️ Введите /start";
+        return SendMessage.builder()
+                .chatId(chatId)
+                .text(textMessage)
+                .build();
+    }
+    public SendMessage setTimeTask(Long chatId, String messageText) {
+        String textAnswer = "";
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        sdf.setLenient(false);
+        Date time = new Date();
+        try {
+            time = sdf.parse(messageText);
+
+        } catch (Exception e) {
+            textAnswer = "Ошибка при обработке времени :( Попробуйте ввести еще раз, в формате чч:мм";
+            return SendMessage.builder()
+                    .text(textAnswer)
+                    .chatId(chatId)
+                    .build();
+        }
+        textAnswer = "Задача была успешно изменена!) ✔️ Введите /start";
+        tasksDetails.changeTimeTask(N_taskForChange.get(chatId), chatId, time);
+        statusChatUser.remove(chatId);
+        return SendMessage.builder()
+                .text(textAnswer)
+                .chatId(chatId)
+                .build();
+    }
+    public SendMessage setCommentTask(Long chatId, String messageText) {
+        tasksDetails.changeCommentTask(N_taskForChange.get(chatId), chatId, messageText);
+        String textAnswer = "Задача была успешно изменена!) ✔️ Введите /start";
+        statusChatUser.remove(chatId);
+        return SendMessage.builder()
+                .text(textAnswer)
+                .chatId(chatId)
                 .build();
     }
 }
