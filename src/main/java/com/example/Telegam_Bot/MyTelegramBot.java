@@ -3,6 +3,7 @@ package com.example.Telegam_Bot;
 import com.example.Telegam_Bot.config.BotConfig;
 import com.example.Telegam_Bot.service.MyCallbackQueryHandler;
 import com.example.Telegam_Bot.service.MySendMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -18,6 +19,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     final MySendMessage mySendMessage;
     final MyCallbackQueryHandler myCallbackQueryHandler;
 
+    @Autowired
     MyTelegramBot(BotConfig botConfig, MySendMessage mySendMessage, MyCallbackQueryHandler myCallbackQueryHandler) {
         this.botConfig = botConfig;
         this.mySendMessage = mySendMessage;

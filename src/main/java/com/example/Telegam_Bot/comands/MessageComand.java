@@ -6,7 +6,8 @@ import lombok.Getter;
 @Getter
 public enum MessageComand {
     START("/start"),
-    HELP("/help");
+    HELP("/help"),
+    SKIP("/skip");
     final String command;
 
     MessageComand(String command) {

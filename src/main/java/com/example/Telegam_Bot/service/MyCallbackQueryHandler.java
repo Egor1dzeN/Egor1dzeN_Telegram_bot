@@ -3,17 +3,18 @@ package com.example.Telegam_Bot.service;
 import com.example.Telegam_Bot.comands.BtnCommand;
 import com.example.Telegam_Bot.entity.Task;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-@Component
+@Service
 public class MyCallbackQueryHandler {
 
     @Autowired
@@ -37,7 +38,17 @@ public class MyCallbackQueryHandler {
         if (data.equals(BtnCommand.MY_TASKS.getCommand())) {
             return showMyTasks(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
-        return null;
+        if (data.equals(BtnCommand.CHANGE_TASK.getCommand())){
+            return changeTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
+        }
+        if (data.equals(BtnCommand.CHANGE_DAY_TASK.getCommand())){
+
+        }
+        return EditMessageText.builder()
+                .text("))")
+                .chatId(data)
+                .messageId(callbackQuery.getMessage().getMessageId())
+                .build();
     }
 
     public EditMessageText createNewTask(Integer messageId, Long chatId) {
@@ -67,8 +78,8 @@ public class MyCallbackQueryHandler {
     public EditMessageText createTaskToday(Integer messageId, Long chatId) {
         Task task = new Task(chatId, new Date());
         MySendMessage.nonCreatedTask.put(chatId, task);
-        MySendMessage.statusCreatingTask.put(chatId, 2);
-        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм или введите /-, чтобы оставить только дату";
+        MySendMessage.statusChatUser.put(chatId, 2);
+        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм \uD83E\uDDFE или введите /skip, чтобы оставить только дату";
         return EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)
@@ -83,8 +94,8 @@ public class MyCallbackQueryHandler {
         System.out.println(date_tomorrow);
         Task task = new Task(chatId, date_tomorrow);
         MySendMessage.nonCreatedTask.put(chatId, task);
-        MySendMessage.statusCreatingTask.put(chatId, 2);
-        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм или введите /-, чтобы оставить только дату";
+        MySendMessage.statusChatUser.put(chatId, 2);
+        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм \uD83E\uDDFE или введите /skip, чтобы оставить только дату";
         return EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)
@@ -95,7 +106,7 @@ public class MyCallbackQueryHandler {
     public EditMessageText createTaskOtherDay(Integer messageId, Long chatId) {
         String textMessage = "Введите дату задачи в формате дд.мм.гггг," +
                 " Например: 1 января 2024 года будет выглядеть так: 01.01.2024";
-        MySendMessage.statusCreatingTask.put(chatId, 1);
+        MySendMessage.statusChatUser.put(chatId, 1);
         return EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)
@@ -105,10 +116,37 @@ public class MyCallbackQueryHandler {
 
     public EditMessageText showMyTasks(Integer messageId, Long chatId) {
         List<Task> listTasksByUserId = tasksDetails.getAllTasksByUserId(chatId);
+        StringBuilder tableBuilder = new StringBuilder();
+
+        tableBuilder.append("N| Дата            | Время | Комментарий       \n");
+        tableBuilder.append("-----------------------------------------------------------\n");
+        for (int i = 0; i < listTasksByUserId.size(); ++i) {
+            var task = listTasksByUserId.get(i);
+            SimpleDateFormat formetter_time = new SimpleDateFormat("HH:mm");
+            SimpleDateFormat formetter_day = new SimpleDateFormat("dd.MM.yyyy");
+            tableBuilder.append((i+1) + " | " + formetter_day.format(task.getDay()) + " | " + formetter_time.format(task.getTime()) + "    | " + task.getTaskMessage()+"\n");
+        }
+        // Добавьте другие строки таблицы, если нужно
+
         return EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)
-                .text(listTasksByUserId.toString())
+                .text(tableBuilder.toString())
+                .build();
+    }
+    public EditMessageText changeTask(Integer messageId, Long chatId) {
+        EditMessageText message = showMyTasks(messageId, chatId);
+        String textMessage = message.getText();
+        textMessage += "Введите номер задачи, которую хотите изменить:";
+        message.setText(textMessage);
+        return message;
+    }
+    public EditMessageText changeDayTask(Integer messageId, Long chatId) {
+        String textMessage = "Введите время⏱\uFE0F, на которое хотите добавить новую задачу в формате чч:мм \uD83E\uDDFE или введите /skip, чтобы оставить только дату";
+        return EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(textMessage)
                 .build();
     }
 }

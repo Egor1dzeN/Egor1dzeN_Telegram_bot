@@ -8,7 +8,11 @@ public enum BtnCommand {
     MY_TASKS("my_tasks"),
     CREATE_TASK_TODAY("create_task_today"),
     CREATE_TASK_TOMORROW("create_task_tomorrow"),
-    CREATE_TASK_OTHER_TIME("create_task_other_time");
+    CREATE_TASK_OTHER_TIME("create_task_other_time"),
+    CHANGE_TASK("/skip"),
+    CHANGE_TIME_TASK("change_time_task"),
+    CHANGE_DAY_TASK("change_day_task"),
+    CHANGE_COMMENT_TASK("change_comment_task");
     final String command;
 
     BtnCommand(String command){
