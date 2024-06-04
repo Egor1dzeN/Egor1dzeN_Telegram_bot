@@ -184,10 +184,16 @@ public class MySendMessage {
                 .text("Изменить комментарий")
                 .callbackData(BtnCommand.CHANGE_COMMENT_TASK.getCommand())
                 .build();
+        var deleteComment = InlineKeyboardButton.builder()
+                .text("Удалить задачу")
+                .callbackData(BtnCommand.DELETE_TASK.getCommand())
+                .build();
         var btnMarkup = InlineKeyboardMarkup.builder()
                 .keyboardRow(List.of(changeDay))
                 .keyboardRow(List.of(changeTime))
-                .keyboardRow(List.of(changeComment)).build();
+                .keyboardRow(List.of(changeComment))
+                .keyboardRow(List.of(deleteComment))
+                .build();
         return SendMessage.builder()
                 .chatId(chatId)
                 .text("Выберите, что вы хотите изменить в задаче:")

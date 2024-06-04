@@ -12,7 +12,8 @@ public enum BtnCommand {
     CHANGE_TASK("/skip"),
     CHANGE_TIME_TASK("change_time_task"),
     CHANGE_DAY_TASK("change_day_task"),
-    CHANGE_COMMENT_TASK("change_comment_task");
+    CHANGE_COMMENT_TASK("change_comment_task"),
+    DELETE_TASK("delete_task");
     final String command;
 
     BtnCommand(String command){

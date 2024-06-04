@@ -2,6 +2,7 @@ package com.example.Telegam_Bot.service;
 
 import com.example.Telegam_Bot.comands.BtnCommand;
 import com.example.Telegam_Bot.entity.Task;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -49,6 +50,9 @@ public class MyCallbackQueryHandler {
         }
         if (data.equals(BtnCommand.CHANGE_COMMENT_TASK.getCommand())){
             return changeCommentTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
+        }
+        if (data.equals(BtnCommand.DELETE_TASK.getCommand())){
+            return deleteTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
         return EditMessageText.builder()
                 .text("))")
@@ -173,6 +177,16 @@ public class MyCallbackQueryHandler {
 //        System.out.println("Change Day!");
         MySendMessage.statusChatUser.put(chatId, 7);
         String textMessage = "Введите новый комментарий к задаче: ";
+        return EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(textMessage)
+                .build();
+    }
+    public EditMessageText deleteTask(Integer messageId, Long chatId){
+        MySendMessage.statusChatUser.remove(chatId);
+        tasksDetails.deleteTask(MySendMessage.N_taskForChange.get(chatId), chatId);
+        String textMessage = "Задача была успешно удалена";
         return EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)

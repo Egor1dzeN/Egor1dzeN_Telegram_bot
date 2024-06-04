@@ -16,7 +16,9 @@ public class TasksDetails {
     public void saveTask(Task task) {
         taskRepository.save(task);
     }
-
+    public void deleteTask(Task task){
+        taskRepository.delete(task);
+    }
     public List<Task> getAllTasksByUserId(Long userId) {
         return taskRepository.findAllByUserIdOrderByDayAsc(userId);
     }
@@ -38,6 +40,11 @@ public class TasksDetails {
         Task task= listTask.get(number - 1);
         task.setTaskMessage(comment);
         saveTask(task);
+    }
+    public void deleteTask(int number, Long chatId) {
+        List<Task> listTask = getAllTasksByUserId(chatId);
+        Task task= listTask.get(number - 1);
+        deleteTask(task);
     }
 
 }
