@@ -26,6 +26,8 @@ public class MySendMessage {
     CheckDateFormat checkDateFormat;
     @Autowired
     TasksDetails tasksDetails;
+    @Autowired
+    Settings settings;
 
     public static HashMap<Long, Task> nonCreatedTask = new HashMap<>();
     //0 - nothing, 1 - set day, 2 - set time, 3 - set comment, 4 - set N task for change
@@ -56,6 +58,9 @@ public class MySendMessage {
         else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 7) {
             return setCommentTask(message.getChatId(), messageText);
         }
+        else if (statusChatUser.getOrDefault(message.getChatId(), 0) == 8) {
+            return settings.setEmail(message.getChatId(), messageText);
+        }
 
         return SendMessage.builder().text("Я вас не понял(, вернуться в начало - /start").chatId(message.getChatId()).build();
     }
@@ -76,10 +81,15 @@ public class MySendMessage {
                 .text("Мои задачи \uD83D\uDCD6")
                 .callbackData(BtnCommand.MY_TASKS.getCommand())
                 .build();
+        var settings = InlineKeyboardButton.builder()
+                .text("Настройки ⚙️")
+                .callbackData(BtnCommand.SETTINGS.getCommand())
+                .build();
         var btnsList = InlineKeyboardMarkup.builder()
                 .keyboardRow(List.of(createNewTask))
                 .keyboardRow(List.of(changeTask))
                 .keyboardRow(List.of(myTasks))
+                .keyboardRow(List.of(settings))
                 .build();
         return SendMessage.builder()
                 .chatId(chatID)

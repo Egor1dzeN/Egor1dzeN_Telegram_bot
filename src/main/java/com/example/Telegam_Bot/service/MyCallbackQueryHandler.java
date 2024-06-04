@@ -20,6 +20,8 @@ public class MyCallbackQueryHandler {
 
     @Autowired
     TasksDetails tasksDetails;
+    @Autowired
+    Settings settings;
 
     public EditMessageText sendMessageBtn(CallbackQuery callbackQuery) {
         String data = callbackQuery.getData();
@@ -53,6 +55,12 @@ public class MyCallbackQueryHandler {
         }
         if (data.equals(BtnCommand.DELETE_TASK.getCommand())){
             return deleteTask(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
+        }
+        if (data.equals(BtnCommand.SETTINGS.getCommand())){
+            return settings.showAllSettings(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
+        }
+        if (data.equals(BtnCommand.SET_EMAIL.getCommand())){
+            return settings.setEmail(callbackQuery.getMessage().getMessageId(), callbackQuery.getMessage().getChatId());
         }
         return EditMessageText.builder()
                 .text("))")

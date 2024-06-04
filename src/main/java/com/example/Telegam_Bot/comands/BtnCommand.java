@@ -13,10 +13,14 @@ public enum BtnCommand {
     CHANGE_TIME_TASK("change_time_task"),
     CHANGE_DAY_TASK("change_day_task"),
     CHANGE_COMMENT_TASK("change_comment_task"),
-    DELETE_TASK("delete_task");
+    DELETE_TASK("delete_task"),
+    SETTINGS("settings"),
+    CHANGE_EMAIL("change_email"),
+    SET_EMAIL("set_email");
+
     final String command;
 
-    BtnCommand(String command){
+    BtnCommand(String command) {
         this.command = command;
     }
 }
